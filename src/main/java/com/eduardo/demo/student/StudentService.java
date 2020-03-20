@@ -1,5 +1,6 @@
 package com.eduardo.demo.student;
 
+import com.eduardo.demo.exception.ApiRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,10 +12,12 @@ import java.util.UUID;
 public class StudentService {
 
     private final StudentDataAccessService studentDataAccessService;
+    private final EmailValidator emailValidator;
 
     @Autowired
-    public StudentService(StudentDataAccessService studentDataAccessService) {
+    public StudentService(StudentDataAccessService studentDataAccessService, EmailValidator emailValidator) {
         this.studentDataAccessService = studentDataAccessService;
+        this.emailValidator = emailValidator;
     }
 
      List<Student> getAllStudents() {
@@ -29,6 +32,17 @@ public class StudentService {
 
      void addNewStudent(UUID student_id, Student student) {
          UUID newStudentId = Optional.ofNullable(student_id).orElse(UUID.randomUUID());
+
+         if(!emailValidator.test(student.getEmail())){
+             throw new ApiRequestException(student.getEmail() + " is not valid");
+         }
+
+         if(studentDataAccessService.isEmailTaken(student.getEmail())) {
+             throw new ApiRequestException(student.getEmail() + " is taken");
+         }
+
+
+
 
          studentDataAccessService.insertStudent(newStudentId, student);
 
