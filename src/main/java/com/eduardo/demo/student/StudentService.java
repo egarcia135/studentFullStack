@@ -40,11 +40,11 @@ public class StudentService {
          if(studentDataAccessService.isEmailTaken(student.getEmail())) {
              throw new ApiRequestException(student.getEmail() + " is taken");
          }
-
-
-
-
          studentDataAccessService.insertStudent(newStudentId, student);
 
+    }
+
+    List<StudentCourse> getAllCoursesForStudent(UUID studentId) {
+        return studentDataAccessService.selectAllStudentCourses(studentId);
     }
 }
